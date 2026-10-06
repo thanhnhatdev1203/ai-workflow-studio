@@ -1,195 +1,158 @@
-# AI Workflow Studio — tài liệu kiến trúc
+# AI Workflow Studio — kiến trúc
 
-Đây là kiến trúc MVP dự kiến, không khẳng định các dịch vụ, tuyến đường hay bảng dữ liệu đã tồn tại. [CURRENT_STATE.md](CURRENT_STATE.md) ghi nhận bằng chứng triển khai; [PRODUCT.md](PRODUCT.md) xác định phạm vi sản phẩm.
+Cập nhật **2026-10-07** theo core Prompt Optimizer và Prompt Repair Loop. Phân biệt rõ **prototype đã triển khai** với **dịch vụ dự kiến**; xem [CURRENT_STATE.md](CURRENT_STATE.md) để biết kết quả kiểm tra.
 
-## Công nghệ và phạm vi triển khai
+## Nền tảng hiện tại
 
-| Lớp | Định hướng | Trạng thái hiện tại |
-| --- | --- | --- |
-| Ứng dụng | Next.js App Router, React, TypeScript, Tailwind CSS | Đã có bộ khung: Next.js 16.3.8, React 19.2.8, Tailwind 4; đã cấu hình TypeScript ở chế độ nghiêm ngặt |
-| Thư viện giao diện | shadcn/ui khi phù hợp, biểu tượng lucide-react | Dự kiến; chưa cài đặt |
-| Backend | Khả năng API/xử lý phía máy chủ của Next.js | Nền tảng có sẵn; chưa triển khai API nghiệp vụ |
-| Cơ sở dữ liệu/xác thực | Supabase PostgreSQL, Supabase Auth, Google OAuth | Dự kiến; chưa tích hợp trong kho mã |
-| Thanh toán | SePay / VietQR | Dự kiến |
-| Email | Resend khi cần | Dự kiến; chưa thêm khi chưa cần |
-| Triển khai | Vercel | Nền tảng ưu tiên; chưa xác minh việc triển khai |
-| Hạ tầng tùy chọn | Redis; Cloudflare R2 | Hoãn đến khi có nhu cầu cụ thể |
+Một ứng dụng Next.js App Router 16.3.8, React 19.2.8, TypeScript strict, Tailwind 4 và CSS/CSS Modules. SVG icons nội bộ, không thêm thư viện UI/animation. Các dịch vụ dự kiến vẫn là Supabase/PostgreSQL/Auth + Google OAuth, SePay/VietQR, Resend khi cần và Vercel. Chưa tích hợp các dịch vụ đó. Redis/R2 chỉ thêm khi có nhu cầu cụ thể.
 
-Ban đầu giữ một ứng dụng duy nhất. Đọc hướng dẫn đã cài trong `node_modules/next/dist/docs/` trước khi triển khai các hành vi phụ thuộc Next.js. Không mặc định rằng quy ước của phiên bản cũ vẫn áp dụng.
+Đọc guide tương ứng trong `node_modules/next/dist/docs/` trước khi viết mã. Server pages đọc `searchParams` bất đồng bộ và chuyển dữ liệu sang client components. `/app` và các đường dẫn cũ dùng server redirect.
 
-## Sơ đồ kiến trúc tổng thể
+## Luồng prototype trong trình duyệt
 
 ```text
-Trình duyệt (giao diện theo công việc; không có SDK nhà cung cấp hay lựa chọn mô hình)
+Browser
   ↓
-Ứng dụng Next.js
+Prompt Optimizer UI
   ↓
-Lớp API / xử lý phía máy chủ
-  ├── Xác thực ─────────────────── Supabase Auth / Google OAuth
-  ├── Dịch vụ quy trình ────────┐
-  ├── Chấm điểm prompt          │
-  │   (TypeScript cục bộ)       │
-  ├── Bộ định tuyến AI          │
-  │     ↓                      │
-  │   Lớp trừu tượng            │
-  │   nhà cung cấp AI           │
-  │     ↓                      │
-  │   API AI bên ngoài          │
-  ├── Dịch vụ sử dụng/chi phí ──┤
-  └── Thanh toán ───────────────┤
-        ↕                      ↓
-      SePay              PostgreSQL / Supabase
+Prompt Type / Domain / Task Selector
+  ↓
+Prompt Diagnosis (tiêu chí chung + chuyên ngành)
+  ↓
+Prompt Score (mock 0–100)
+  ↓
+Prompt Optimizer (ghép văn bản mock)
+  ↓
+Prompt Version → Before / After → Copy
+  ├── Optional Runner → output mẫu
+  └── Output từ AI bên ngoài + feedback
+                ↓
+          Diagnose Failure
+                ↓
+          Prompt Repair (mock)
+                ↓
+          Phiên bản mới → Copy / Run tùy chọn → Save
+```
 
+Không có network request AI/backend trong luồng này. Optimize tạo cặp phiên bản gốc/tối ưu; Repair thêm phiên bản liên kết `parentId`. Chỉ click Chạy thử mới hiển thị output soạn sẵn. Image/video không có runner tạo media.
+
+| Module thực tế | Trách nhiệm |
+| --- | --- |
+| `src/lib/prompt-catalog.ts` | 5 loại, 12 lĩnh vực, task taxonomy, form fields, 27 templates, vấn đề repair và alias mẫu cũ |
+| `src/lib/prompt-model.ts` | Kiểu prompt/phiên bản/options/brand, dữ liệu mẫu, mock optimize/repair/output |
+| `src/components/prompt-optimizer.tsx` | Trạng thái form, diagnosis, before/after, copy, optional runner, output+feedback, repair, chọn/lưu phiên bản |
+| `src/components/prototype-provider.tsx` | Thư viện prompt/brand dùng chung, favorite, localStorage schema, validation cơ bản, thông báo |
+| `src/components/prompt-library.tsx` | Prompt của tôi, lịch sử các phiên bản đã lưu, favorites, tìm/lọc, liên kết sửa/xem phiên bản |
+| `src/components/template-browser.tsx` | Tìm/lọc template đa ngành, mở optimizer bằng dữ liệu mẫu |
+| `src/components/app-shell.tsx` | Navigation core/support; sidebar desktop và drawer tablet/mobile |
+| `src/components/landing-experience.tsx` | Navigation trang chủ, ví dụ trước/sau+repair, chuyển động nền/reveal theo cuộn native |
+
+## Routes
+
+| Route | Hành vi hiện tại |
+| --- | --- |
+| `/` | Landing page giới thiệu core và demo mock |
+| `/app/optimize` | Optimizer; query `template`, `prompt`, `mode=repair`, `version` |
+| `/app/prompts` | Prompt của tôi |
+| `/app/history`, `/app/favorites`, `/app/templates` | Lịch sử phiên bản đã lưu, yêu thích, thư viện mẫu |
+| `/app/brand`, `/app/billing`, `/app/settings` | Tính năng hỗ trợ minh họa |
+| `/login`, `/register` | Form demo; không có phiên đăng nhập thật |
+| `/app` | Redirect tới `/app/optimize` |
+| `/app/new` | Redirect tới optimizer và giữ query `template` |
+| `/app/workflows` | Redirect tới `/app/prompts` |
+
+## Dữ liệu mock và phiên bản
+
+`PromptRecord` giữ id, name, type, domainId/taskId, input, context, advanced options, lựa chọn `brandUsed`, versions, favorite và updatedAt. `PromptVersion` giữ id, số phiên bản, kind, text, score, parentId tùy chọn, output tùy chọn và repair metadata (output, problem IDs, feedback, external/runner). Phiên bản gốc/tối ưu/sửa được thêm vào danh sách, không ghi đè văn bản phiên bản cũ; runner gắn output mẫu vào phiên bản đang chọn.
+
+`studioflow-prompts-v1` lưu `{ schema: 1, prompts, brand }` trong localStorage. `useSyncExternalStore` dùng snapshot SSR ổn định, hydrate rồi đọc dữ liệu trình duyệt; thay đổi favorite/brand/prompt được chia sẻ giữa các màn hình và tab cùng origin. Dữ liệu sai schema/kiểu cơ bản quay về mẫu; nếu browser chặn storage/quota, giữ trong bộ nhớ phiên và báo đúng trạng thái. Không phải database, auth hoặc kiểm soát quyền sở hữu.
+
+Key workflow cũ `studioflow-saved-workflows` không bị xóa và chưa được chuyển đổi. Dữ liệu khác origin (port khác cũng khác) không tự chia sẻ. Chưa có import/export, migration, đồng bộ cloud hoặc kiểm soát quota thật. Lịch sử nhóm theo lần cập nhật prompt và thứ tự phiên bản; chưa có timestamp riêng từng version.
+
+## Kiến trúc dịch vụ sau này — chỉ tài liệu hóa
+
+```text
+Browser → Next.js API / server handlers
+             ├── Prompt Diagnosis Service
+             ├── Prompt Optimization Service
+             ├── Prompt Repair Service
+             ├── Prompt Version Service
+             ├── Template Service
+             ├── Optional Runner
+             ├── Usage / Cost
+             └── Billing
+                      ↕
+             Supabase / PostgreSQL
+
+Optimization / Repair / Runner
+        → AI Router → Provider abstraction → External AI API
+Auth → Supabase Auth / Google OAuth
+Billing → SePay / VietQR; webhook → xác minh → cập nhật quyền lợi
 Email phía máy chủ khi cần → Resend
-Webhook SePay → máy chủ xác minh → cập nhật thanh toán + thuê bao
 ```
 
-Đây là cách phân chia trách nhiệm trong ứng dụng, không phải các dịch vụ được triển khai độc lập hay một hệ thống tác nhân phức tạp.
+Đây là các trách nhiệm trong một ứng dụng, không phải microservices được triển khai hay hệ thống nhiều tác nhân. Bản chuyển hướng và bàn giao ngày 2026-10-07 **chưa tạo API, dịch vụ, database/migration hoặc kết nối AI thật**. Phần dưới định hướng cho nhiệm vụ logic được giao sau này, không tự cấp phép triển khai trong phiên bàn giao.
 
-## Trách nhiệm của giao diện
+- **Diagnosis:** trả tiêu chí chung/ngữ cảnh, phần thiếu và gợi ý; Score dùng quy tắc TypeScript 0–100, không dùng AI. UI có thể preview nhưng máy chủ tính lại dữ liệu được lưu.
+- **Optimization:** cấu trúc prompt theo domain/task/context; không tự gọi runner.
+- **Repair:** nhận prompt/version, output và feedback; coi output ngoài là dữ liệu tham chiếu, không là chỉ dẫn đáng tin; tạo version mới và giữ quan hệ nguồn.
+- **Version:** xác minh ownership, giữ version history và output/feedback liên quan, kiểm soát cập nhật đồng thời.
+- **Template:** phục vụ taxonomy, mẫu và options; không rải danh mục giữa nhiều màn hình.
+- **Runner:** thao tác riêng có quyền lợi/hạn mức Generate; chỉ chạy khi người dùng yêu cầu. Không đưa image/video generation vào phạm vi.
+- **Usage/Cost:** hạn mức hiển thị Optimize/Generate và sổ chi phí nội bộ riêng. Cách tính Repair, refund/retry/reset chưa chốt.
+- **Billing:** chỉ backend xác minh và kích hoạt gói; UI đọc trạng thái, không tự cấp quyền.
 
-Hiển thị mẫu công việc tiếng Việt, biểu mẫu có cấu trúc, hướng dẫn chấm điểm theo quy tắc, so sánh trước/sau, nội dung, chỉnh sửa nhanh, lịch sử, mục yêu thích, quy trình đã lưu, hồ sơ thương hiệu và hạn mức dễ hiểu. Hiển thị trạng thái thanh toán do backend trả về và mã QR/mã tham chiếu khi tạo thanh toán thành công.
+## Dữ liệu máy chủ dự kiến
 
-Giao diện tuyệt đối không gọi SDK nhà cung cấp AI, lộ thông tin bí mật, chọn nhà cung cấp/mô hình, đóng vai trò quyết định quyền lợi trả phí hoặc kích hoạt thuê bao. Có thể xem trước điểm prompt bằng xử lý cục bộ; backend phải tính lại mọi điểm được lưu hoặc dùng làm căn cứ xử lý.
+Chỉ định nghĩa trách nhiệm, chưa chốt schema hoặc tạo bảng:
 
-## Trách nhiệm của backend/API
-
-Xác minh danh tính đã đăng nhập, cấu trúc yêu cầu, giới hạn đầu vào/đầu ra, quyền sở hữu, quyền lợi theo gói, hạn mức và tần suất sử dụng. Kết hợp yêu cầu công việc với bối cảnh thương hiệu phù hợp. Thực hiện chấm điểm theo quy tắc, tối ưu, tạo nội dung và chỉnh sửa nhanh qua các dịch vụ tương ứng. Lưu lượt chạy/quy trình, hạch toán sử dụng và chi phí, xử lý thanh toán đã xác minh, hạn chế quyền truy cập báo cáo quản trị.
-
-Giữ logic nghiệp vụ có thể tái sử dụng phía sau Next.js Route Handlers hoặc các khả năng xử lý máy chủ phù hợp. Cấu hình nhà cung cấp AI và quyền truy cập đặc biệt vào Supabase/thanh toán chỉ nằm phía máy chủ. Không thêm backend riêng hoặc hàng đợi khi chưa có bằng chứng cần thiết.
-
-## Xác thực
-
-Dùng Supabase Auth cho xác thực email và Google OAuth. Liên kết `profiles` của ứng dụng với người dùng Supabase đã xác thực. Kiểm tra phiên đăng nhập phía máy chủ cho mọi thao tác được bảo vệ và kiểm tra quyền sở hữu ngay cả khi người dùng truy cập qua giao diện đã đăng nhập. Bảo vệ thao tác quản trị bằng phân quyền đã xác minh phía máy chủ.
-
-Chưa quyết định dùng email/mật khẩu hay liên kết đăng nhập qua email. Khi triển khai, xử lý chuyển hướng OAuth và phiên đăng nhập phải theo hướng dẫn của nền tảng đã cài và tài liệu nhà cung cấp. Chi tiết phân quyền quản trị chưa được chốt; thấy liên kết quản trị không có nghĩa là được cấp quyền.
-
-## Trách nhiệm cơ sở dữ liệu và các thực thể MVP dự kiến
-
-PostgreSQL/Supabase lưu dữ liệu ứng dụng, bộ đếm hạn mức, hạch toán AI và trạng thái thanh toán. Dùng Row Level Security (RLS — bảo mật theo từng dòng dữ liệu) và ràng buộc quyền sở hữu. Dùng giao dịch/cập nhật nguyên tử để kiểm soát hạn mức và thay đổi quyền lợi thanh toán. Khóa có quyền service-role chỉ nằm phía máy chủ; mã dùng quyền đặc biệt vẫn phải kiểm tra phân quyền.
-
-Hiện chỉ tài liệu hóa các thực thể sau. **Không tạo migration (tệp thay đổi cấu trúc cơ sở dữ liệu) trong nhiệm vụ tài liệu này.** Trường dữ liệu, chỉ mục và cấu trúc đầy đủ sẽ được thiết kế lúc triển khai.
-
-| Thực thể | Trách nhiệm và quan hệ dự kiến |
+| Thực thể dự kiến | Trách nhiệm |
 | --- | --- |
-| `profiles` | Danh tính trong ứng dụng của người dùng Supabase Auth; hồ sơ tối thiểu và liên kết vai trò/gói khi cần |
-| `templates` | Định nghĩa mẫu theo công việc và hướng dẫn nhập yêu cầu |
-| `prompt_runs` | Đầu vào, prompt gốc/đã tối ưu, điểm, kết quả và trạng thái lượt chạy thuộc người dùng; có thể liên kết mẫu, quy trình đã lưu và hồ sơ thương hiệu |
-| `workflows` | Cấu hình/bối cảnh công việc tái sử dụng thuộc người dùng; có thể tạo nhiều lượt chạy |
-| `brand_profiles` | Bối cảnh thương hiệu tái sử dụng thuộc người dùng; số lượng được phép tùy gói |
-| `usage_monthly` | Hạch toán lượt Tối ưu/Tạo nội dung theo người dùng và kỳ tháng xác định |
-| `ai_usage` | Một bản ghi cho mỗi lần gọi/thử gọi AI, thuộc một người dùng và có thể liên kết lượt chạy prompt |
-| `subscriptions` | Thuê bao của người dùng, gói, kỳ hiệu lực và trạng thái quyền lợi |
-| `payments` | Thanh toán của người dùng, số tiền/mã tham chiếu dự kiến, mã giao dịch nhà cung cấp và trạng thái xác minh |
+| `profiles` | Liên kết người dùng Supabase đã xác thực |
+| `templates` | Mẫu và metadata type/domain/task |
+| `prompts` | Prompt thuộc người dùng, context/options, favorite, phiên bản hiện tại |
+| `prompt_versions` | Văn bản/điểm phiên bản, nguồn và feedback repair; không ghi đè lịch sử |
+| `prompt_runs` | Lần chạy tùy chọn gắn version, output và trạng thái |
+| `brand_profiles` | Context thương hiệu tùy chọn |
+| `usage_monthly` | Hạn mức Optimize/Generate theo kỳ |
+| `ai_usage` | Mỗi lần gọi/thử gọi provider |
+| `subscriptions`, `payments` | Gói/kỳ hiệu lực, thanh toán dự kiến và trạng thái đã xác minh |
 
-Một người dùng có nhiều lượt chạy prompt, quy trình, hồ sơ thương hiệu được phép, bản ghi sử dụng tháng, lần gọi AI và bản ghi thanh toán. Giữ tính năng yêu thích tối giản, ví dụ dùng cờ đánh dấu trên thực thể thuộc người dùng sau khi chốt loại đối tượng được đánh dấu. Không mặc định thêm cấu trúc chợ mua bán, kho tài liệu hoặc không gian làm việc nhóm.
+Không lấy bảng `workflows` hoặc automation làm thực thể core mới. Thiết kế bảng/chỉ mục cụ thể khi có nhiệm vụ backend. Quyền sở hữu, RLS, giao dịch nguyên tử, xác thực server và xử lý webhook lũy đẳng vẫn bắt buộc khi triển khai thật.
 
-## Lớp trừu tượng nhà cung cấp và định tuyến AI
+## Provider, định tuyến và chi phí
 
-Luồng xử lý là giao diện → API → bộ định tuyến AI → lớp nhà cung cấp AI → API AI bên ngoài. Hỗ trợ Gemini, OpenAI, Anthropic và OpenRouter thông qua bộ chuyển đổi khi cần; không triển khai tất cả chỉ để đủ một danh sách lý thuyết.
+Mọi AI thao tác chạy phía máy chủ: **UI → API → AI Router → Provider abstraction → External API**. Không đưa SDK/bí mật hoặc selector GPT/Claude/Gemini/OpenRouter vào UI. Bí danh nội bộ `cheap`, `standard`, `premium` được ánh xạ sang provider/model trong cấu hình tập trung; không rải tên model vào logic nghiệp vụ. Chỉ thêm adapter cần thiết, không implement mọi provider theo danh sách lý thuyết.
 
-Hợp đồng minh họa, chưa phải API đã triển khai:
+Hợp đồng `generateText(request): Promise<TextResult>` là minh họa, chưa triển khai. Chuẩn hóa messages, giới hạn output, token usage và dữ liệu chi phí. Optimization/repair nhẹ có thể dùng `cheap`; runner thông thường `standard`; `premium` chỉ khi cần và có kiểm soát chi phí. Provider/model/chính sách fallback cụ thể chưa chốt. Hỗ trợ streaming khi cần, không xây trước.
 
-```ts
-interface AIProvider {
-  generateText(request: TextRequest): Promise<TextResult>;
-}
-```
+Mỗi AI call, gồm thất bại/thử lại, phải ghi: `user_id`, `prompt_run_id` nếu có (và liên kết version khi phù hợp), `provider`, `model`, `input_tokens`, `output_tokens`, `cached_tokens` khi có, `action_type` (optimize/repair/generate), `cost_usd`, `latency_ms`, `success`, `created_at`. Phân biệt số liệu ước tính và thực tế; thiếu usage không được xem là chi phí 0 đã xác minh.
 
-Thiết kế hợp đồng sau này cần nhận thông điệp đã chuẩn hóa, giới hạn đầu ra và thông tin mô hình từ cấu hình; trả về văn bản, số token đã chuẩn hóa, thông tin nhà cung cấp/mô hình và dữ liệu hạch toán. `TextRequest` và `TextResult` ở trên là kiểu dữ liệu minh họa. Chi tiết SDK riêng của nhà cung cấp nằm trong bộ chuyển đổi. Chừa khả năng hỗ trợ truyền kết quả từng phần (streaming) trong tương lai, không bắt buộc ở lần triển khai đầu.
+Giá provider cần kiểm chứng khi tích hợp. Báo cáo chi phí theo ngày/tháng, người dùng/gói/domain/task và tỷ lệ chi phí AI/doanh thu dùng cùng kỳ và tiền tệ; chưa chốt nguồn VND/USD hoặc cách giữ gói lịch sử. Không hiển thị token/model nội bộ thành lựa chọn cho người dùng cuối.
 
-Dịch vụ nghiệp vụ yêu cầu các bí danh nội bộ `cheap`, `standard` hoặc `premium`. Cấu hình tập trung phía máy chủ ánh xạ bí danh sang nhà cung cấp/mô hình cụ thể. Không rải tên mô hình trong logic nghiệp vụ. Hạch toán nội bộ phải giữ nhà cung cấp/mô hình thực tế đã dùng.
+## Ranh giới bảo vệ khi triển khai thật
 
-| Công việc | Định tuyến thông thường |
-| --- | --- |
-| Tối ưu prompt, viết lại đơn giản, rút ngắn, đổi giọng điệu/CTA, tạo tiêu đề, biến đổi nhẹ | `cheap` |
-| Tạo nội dung hoàn chỉnh thông thường | `standard` |
-| Công việc thực sự phức tạp, suy luận khó, trường hợp đặc biệt | `premium` khi có lý do phù hợp |
+Máy chủ kiểm tra phiên, ownership, domain/task/type, độ dài đầu vào/đầu ra, quota, quyền lợi và rate limit; không tin dữ liệu localStorage/client. Output bên ngoài là dữ liệu không tin cậy. Bí mật/provider/service-role/payment chỉ ở server. Lỗi trả về an toàn và không chứa nội bộ nhạy cảm.
 
-Backend tự cân bằng chất lượng và chi phí. Người dùng không kiểm soát định tuyến. Phải giới hạn và hạch toán việc chuyển sang phương án dự phòng/thử lại; thử lại tự động không được tạo chi phí nhà cung cấp không được ghi nhận. Nhà cung cấp, mô hình, ngưỡng chuyển lên mô hình mạnh hơn và chính sách thử lại cụ thể chưa được chốt.
+Supabase Auth + Google OAuth là định hướng, loại đăng nhập email chưa chốt. SePay webhook phải xác thực nguồn, khớp số tiền/mã tham chiếu, chống trùng bằng transaction ID và cập nhật payment/subscription nhất quán. Form demo và thông báo local hiện không đáp ứng các yêu cầu này. Không thêm luồng approval vào UI prototype như thể backend đã tồn tại.
 
-## Theo dõi chi phí
+## Điểm nối khi triển khai logic thật
 
-Mọi lần gọi AI về sau phải ghi các trường này, gồm cả lần thất bại và từng lần thử lại với nhà cung cấp:
+Đối chiếu [research Promptify](research/PROMPTIFY_RESEARCH.md) để hiểu pattern và câu hỏi chưa có chứng cứ; không dùng giao diện đối thủ để suy ra hợp đồng API của họ. Bảng dưới mô tả trách nhiệm cho StudioFlow, chưa phải API đã chốt.
 
-| Trường | Ý nghĩa |
-| --- | --- |
-| `user_id` | Người dùng chịu trách nhiệm cho lần gọi |
-| `prompt_run_id` | Lượt chạy prompt liên quan, nếu có |
-| `provider` | Nhà cung cấp thực tế đã dùng |
-| `model` | Mô hình thực tế đã dùng |
-| `input_tokens` | Số token đầu vào được báo cáo hoặc ước tính |
-| `output_tokens` | Số token đầu ra được báo cáo hoặc ước tính |
-| `cached_tokens` | Số token dùng bộ nhớ đệm khi có dữ liệu |
-| `action_type` | Tối ưu, tạo nội dung hoặc phép biến đổi cụ thể |
-| `cost_usd` | Chi phí lần gọi bằng USD, ước tính hoặc thực tế |
-| `latency_ms` | Thời gian thực hiện lần gọi |
-| `success` | Lần gọi có thành công hay không |
-| `created_at` | Thời điểm ghi nhận |
+| Nghiệp vụ | Điểm mock hiện tại | Dữ liệu cần giữ khi thay bằng logic thật |
+| --- | --- | --- |
+| Diagnosis/Score | Mảng `criteria`, `fields` và score cố định trong `prompt-optimizer.tsx` | Nhận input/type/domain/task/context/options; trả tiêu chí có/thiếu, gợi ý và điểm chung/domain. Dùng quy tắc TypeScript, kiểm chứng trọng số riêng |
+| Optimize | `mockOptimize` trong `prompt-model.ts`, action `optimize` trong UI | Nhận yêu cầu + context đã áp dụng; tạo version mới và before/after; không gọi runner. Giữ placeholder hoặc hỏi dữ kiện thiếu, không tự bịa |
+| Run | `mockOutput`, action `run` | Nhận đúng version, kiểm tra entitlement/Generate quota; trả output gắn run/version; chỉ thực hiện do hành động chủ động |
+| Diagnose Failure / Repair | Boolean `diagnosed`, ánh xạ `repairProblems`, `mockRepair` | Nhận version nguồn + output/source + problem IDs + feedback; trả chẩn đoán hữu ích và version mới; giữ parent, không thay văn bản cũ, không tự Run |
+| Save/Versions/Favorite | `PrototypeProvider` và localStorage | Kiểm tra người dùng/ownership; lưu prompt và versions; favorite dùng cùng entity. Không giữ thông báo lưu local như thể đã đồng bộ server |
+| Templates/Fields | Catalog và `getDynamicFields` | Duy trì ID ổn định và validation theo type/domain/task; đa ngành, không giới hạn về marketing; không tự chạy template |
+| Brand Context | `brandUsed`, `BrandContext`, phần ghép `customContext` | Chọn dùng rõ ràng; áp dụng domain phù hợp; ghi lại context thực tế của version, không lấy profile mới sửa cho version cũ |
+| Usage/Cost/Billing | Giá giả định, runner không trừ credit | Hạn mức và ledger server riêng; chốt repair/retry/refund/reset; payment state đã xác minh, không cấp gói từ client |
 
-Phân biệt giá trị thực tế với ước tính; dữ liệu sử dụng không có không được âm thầm coi là chi phí bằng 0 đã xác minh. Dữ liệu giá nằm trong cấu hình tập trung phía máy chủ và phải được kiểm chứng khi tích hợp nhà cung cấp. Giữ đủ thông tin liên hệ gói/quy trình để báo cáo chi phí lịch sử ngay cả khi người dùng đổi gói. Cách lưu thông tin liên hệ cụ thể chưa được quyết định.
+**Giới hạn dữ liệu hiện tại cần giải quyết lúc thiết kế phiên bản:** ID `v1`, `v2`... chỉ duy nhất trong một `PromptRecord`, không phải toàn hệ thống. `parentId` phải được hiểu cùng prompt owner/id. Type/domain/task/context/options nằm trên record, chưa snapshot độc lập ở mỗi version; metadata có thể đổi khi người dùng tối ưu lại. Mỗi version hiện chỉ giữ một output mẫu, chưa có nhiều run/timestamp. Nếu hỗ trợ chạy/sửa lại version cũ bằng backend, cần giữ context/metadata nguồn và lịch sử run tương ứng, tránh áp dụng task/brand mới vào text cũ.
 
-Hỗ trợ báo cáo chi phí AI hôm nay/tháng này, theo người dùng/gói/quy trình, người dùng/quy trình tốn kém nhất và tỷ lệ Chi phí AI / Doanh thu. Quy đổi doanh thu VND và chi phí USD về cùng tiền tệ và kỳ báo cáo trước khi tính tỷ lệ. Nguồn tỷ giá và chính sách báo cáo chưa được chốt. Không hiển thị token nội bộ hoặc thông tin nhà cung cấp dưới dạng lựa chọn mô hình trong giao diện người dùng cuối.
+**Trạng thái cần bổ sung khi có API:** request pending, thất bại an toàn, retry có kiểm soát và chống submit trùng. Chỉ công bố version/output khi thành công; giữ bản nguồn khi thất bại. Không trừ quota ở frontend hoặc tạo cost bằng 0 khi thiếu provider usage. Output ngoài hệ thống luôn là dữ liệu tham chiếu không đáng tin, không được đưa vào system instructions như một yêu cầu mới.
 
-## Kiểm soát hạn mức
-
-Hạn mức Tối ưu/Tạo nội dung theo tháng hiển thị cho người dùng tách biệt với chi phí AI nội bộ. Giới hạn quy trình, hồ sơ thương hiệu và thành viên là giới hạn số lượng. Backend kiểm tra quyền lợi và giữ trước/cập nhật lượt sử dụng một cách nguyên tử quanh các hành động tính lượt, để các yêu cầu đồng thời không vượt hạn mức. Chốt hoặc trả lại lượt giữ trước theo chính sách xử lý thất bại sẽ được quyết định. Ghi chi phí của từng lần thử lại độc lập với hạn mức hiển thị.
-
-Ưu tiên hạch toán bằng cơ sở dữ liệu; không cần Redis chỉ để kiểm soát hạn mức. Trước khi triển khai, chốt thời điểm/múi giờ đặt lại, tháng dương lịch hay chu kỳ thuê bao, thử lại/thất bại, cách tính lượt chỉnh sửa nhanh và hạn dùng/thứ tự trừ gói mua thêm. Khi chưa chốt, không trình bày những điểm này như hành vi sản phẩm đã xác định.
-
-## Kiến trúc thanh toán
-
-Tạo thanh toán → Hiển thị QR / mã tham chiếu → Người dùng chuyển tiền → Webhook SePay → Backend xác minh webhook → Kiểm tra số tiền/mã tham chiếu → Đánh dấu đã thanh toán → Kích hoạt thuê bao.
-
-Máy chủ tạo giá/gói/số tiền/mã tham chiếu dự kiến từ cấu hình đáng tin cậy. Khi triển khai, xác minh tính xác thực webhook bằng cơ chế SePay hỗ trợ; hiện không giả định định dạng chữ ký cụ thể. Đối chiếu thanh toán dự kiến, số tiền và mã tham chiếu trước khi cấp quyền lợi.
-
-Bảo đảm tính lũy đẳng (xử lý lặp không tạo thêm tác động) bằng mã giao dịch/thanh toán nhà cung cấp duy nhất và thay đổi trạng thái trong giao dịch cơ sở dữ liệu. Thông báo trùng không được gia hạn hoặc kích hoạt quyền lợi nhiều lần. Sự kiện không hợp lệ/không khớp không được cấp quyền. Chuyển hướng trình duyệt, kiểm tra trạng thái định kỳ và thông tin do phía khách gửi chỉ được dùng để đọc trạng thái thanh toán phía máy chủ; giao diện tuyệt đối không tự kích hoạt gói trả phí. Chính sách gia hạn, hết hạn và thanh toán không khớp chưa được chốt.
-
-## Nguyên tắc bảo mật
-
-- Supabase Row Level Security và kiểm tra quyền sở hữu rõ ràng với dữ liệu người dùng.
-- Khóa AI, thanh toán, email và quyền cơ sở dữ liệu đặc biệt chỉ nằm phía máy chủ.
-- Kiểm tra dữ liệu yêu cầu, xác thực, phân quyền, giới hạn tần suất và độ dài đầu vào/đầu ra trước công việc tốn chi phí.
-- Xác minh webhook an toàn, xử lý lũy đẳng và cập nhật quyền lợi trong giao dịch cơ sở dữ liệu.
-- Thông báo lỗi an toàn cho phía khách, không lộ bí mật hoặc phản hồi nội bộ của nhà cung cấp.
-- Hạn chế truy cập dữ liệu chi phí/quản trị đặc quyền; không tin ID, giá, hạn mức hoặc thông tin gói do người dùng tự gửi.
-
-## Các tuyến đường dự kiến
-
-Các đường dẫn này là định hướng tạm thời, chưa được triển khai và không mở rộng phạm vi. `/` hiện là trang mặc định của bộ khung.
-
-| Tuyến đường | Mục đích |
-| --- | --- |
-| `/` | Trang giới thiệu |
-| `/login`, `/signup`, `/auth/callback` | Điểm vào đăng nhập/đăng ký và xử lý kết quả xác thực |
-| `/dashboard` | Bắt đầu công việc và xem tổng quan |
-| `/templates`, `/templates/[id]` | Danh mục công việc và nhập yêu cầu |
-| `/runs/[id]` | So sánh trước/sau, kết quả và chỉnh sửa nhanh |
-| `/history`, `/favorites` | Công việc trước đây và mục đã đánh dấu |
-| `/workflows`, `/workflows/[id]` | Quy trình đã lưu và tái sử dụng |
-| `/brand-profiles` | Bối cảnh thương hiệu tái sử dụng |
-| `/billing` | Gói, hạn mức, tạo/xem trạng thái thanh toán |
-| `/admin` | Báo cáo tối thiểu có giới hạn quyền truy cập |
-
-## Định hướng API dự kiến
-
-Dùng `src/app/api/**/route.ts` làm điểm xử lý HTTP khi cần. Các khả năng xử lý máy chủ có thể dùng chung dịch vụ; tránh tạo điểm truy cập công khai trùng lặp. Hợp đồng dữ liệu cụ thể chưa được chốt.
-
-| Điểm xử lý tạm đề xuất | Trách nhiệm |
-| --- | --- |
-| `GET /api/templates` | Danh mục mẫu công việc |
-| `POST /api/prompt-score` | Chấm điểm theo quy tắc nếu cần truy cập máy chủ; một hàm cục bộ dùng chung có thể đã đủ |
-| `POST /api/runs/optimize` | Tối ưu có xác minh yêu cầu, lưu lượt chạy và hạch toán hạn mức/chi phí |
-| `POST /api/runs/[id]/generate` | Tạo nội dung hoàn chỉnh |
-| `POST /api/runs/[id]/edit` | Chỉnh sửa nhanh qua định tuyến chi phí thấp |
-| `/api/runs`, `/api/workflows`, `/api/brand-profiles` | Đọc/ghi lịch sử và tài nguyên thuộc người dùng khi cần |
-| `GET /api/usage` | Tóm tắt hạn mức và giới hạn số lượng cho người dùng |
-| `POST /api/payments`, `GET /api/payments/[id]` | Tạo yêu cầu thanh toán đáng tin cậy và đọc trạng thái thuộc người dùng |
-| `POST /api/webhooks/sepay` | Xác minh sự kiện nhà cung cấp đã xác thực và cập nhật quyền lợi lũy đẳng |
-| `GET /api/admin/metrics` | Báo cáo nội bộ người dùng/doanh thu/chi phí/sử dụng có phân quyền |
-
-Đây là các điểm truy cập của ứng dụng, không phải sản phẩm API công khai để bán. Tính năng yêu thích nên cập nhật tối thiểu trên tài nguyên thuộc người dùng đã chọn, thay vì thêm dịch vụ không cần thiết.
-
-## Công việc xử lý cục bộ/theo quy tắc xác định
-
-Dùng logic TypeScript/cơ sở dữ liệu thông thường cho chấm điểm prompt, định nghĩa mẫu, kiểm tra biểu mẫu, tính hạn mức, quyền lợi theo gói, tra giá, tính chi phí, đối chiếu thanh toán/xử lý lũy đẳng, quyền sở hữu và báo cáo. AI dùng cho tối ưu prompt, tạo nội dung hoàn chỉnh và các biến đổi văn bản được hỗ trợ. Không gọi AI cho hạch toán, kiểm soát truy cập hoặc quyết định thanh toán.
+**Chưa chốt:** trọng số/thuật toán score, quyền ưu tiên giữa prompt và structured fields/brand, cách tính lượt Repair, policy phí thất bại/retry/refund, giới hạn prompt sau nhiều repair, auth email, provider routing thực tế và hợp đồng service. Danh sách này là các khoảng trống cần xử lý trong nhiệm vụ phù hợp, không phải một kế hoạch tự triển khai tất cả.

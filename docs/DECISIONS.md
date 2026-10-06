@@ -1,8 +1,10 @@
 # AI Workflow Studio — các quyết định
 
-Các quyết định này ghi nhận yêu cầu sản phẩm đã chấp nhận vào ngày 2026-10-06. Việc chấp nhận xác định định hướng, không có nghĩa đã triển khai xong. Chỉ thay đổi nội dung quyết định khi quyết định sản phẩm hoặc kiến trúc thực sự thay đổi; ghi rõ các thay đổi sau này. Việc dịch tài liệu không tạo ra quyết định mới. Giá, trọng số chấm điểm và các chính sách chưa chốt không phải quyết định triển khai đã chấp nhận.
+Các quyết định ban đầu được chấp nhận ngày 2026-10-06, cập nhật định hướng sản phẩm ngày **2026-10-07** theo yêu cầu chuyển core sang Prompt Optimizer và Prompt Repair Loop. Việc chấp nhận xác định định hướng, không có nghĩa đã triển khai xong. Giá, trọng số chấm điểm và chính sách chưa chốt không phải quyết định đã triển khai. ADR hiện có được cập nhật tại chỗ; chỉ thêm bản ghi cho quyết định chưa có.
 
 ADR là bản ghi quyết định kiến trúc. Trạng thái `Accepted` có nghĩa là **Đã chấp nhận**; giữ tên trạng thái này để tiện đối chiếu giữa các phiên làm việc.
+
+Bản bàn giao ngày 2026-10-07 giữ các ADR dưới đây. [Research Promptify](research/PROMPTIFY_RESEARCH.md) là nguồn quan sát tham khảo, không tự tạo quyết định hoặc thay đổi core/giá/quota. Phần ánh xạ sang logic thật trong ARCHITECTURE là hướng dẫn phân chia trách nhiệm, chưa phải dịch vụ đã triển khai hay hợp đồng API đã chốt.
 
 ## ADR-001 — Người dùng không được chọn mô hình AI
 
@@ -16,12 +18,12 @@ ADR là bản ghi quyết định kiến trúc. Trạng thái `Accepted` có ngh
 - **Trạng thái:** Accepted — Đã chấp nhận
 - **Quyết định:** Tính điểm hướng dẫn từ 0–100 bằng quy tắc xác định trong TypeScript.
 - **Lý do:** Phản hồi nhanh, nhất quán không nên phát sinh chi phí AI.
-- **Hệ quả:** Định nghĩa và kiểm chứng bộ tiêu chí dùng chung; dùng cùng bộ tiêu chí trước và sau tối ưu. Điểm ví dụ không phải yêu cầu đầu ra chính xác của thuật toán hoặc phép đo khoa học.
+- **Hệ quả:** Kết hợp tiêu chí chung và theo domain/task; kiểm chứng cùng bộ tiêu chí trước/sau. Mock 42 → 91 và 94 sau repair chỉ minh họa; phân bổ chung /60, ngữ cảnh /40 chưa phải trọng số đã chốt.
 
 ## ADR-003 — Giai đoạn 1 chỉ xử lý văn bản
 
 - **Trạng thái:** Accepted — Đã chấp nhận
-- **Quyết định:** Kiểm chứng mức độ hiểu, sử dụng lặp lại quy trình và trả tiền cho kết quả bằng MVP chỉ xử lý văn bản.
+- **Quyết định:** Giai đoạn 1 chỉ xử lý văn bản prompt và output văn bản. Hỗ trợ type text, coding, image, video, data; image/video chỉ tối ưu văn bản mô tả để dùng ở công cụ bên ngoài.
 - **Lý do:** Tập trung nguồn lực vào giá trị cốt lõi của sản phẩm.
 - **Hệ quả:** Tạo ảnh, tải PDF, RAG, nghiên cứu web, chợ mua bán, API công khai, tiện ích trình duyệt, ứng dụng di động riêng, điều phối tác nhân phức tạp và giao diện chọn nhiều mô hình không phải yêu cầu bắt buộc của giai đoạn 1.
 
@@ -37,7 +39,7 @@ ADR là bản ghi quyết định kiến trúc. Trạng thái `Accepted` có ngh
 - **Trạng thái:** Accepted — Đã chấp nhận
 - **Quyết định:** Ghi mọi lần gọi AI với người dùng, lượt chạy prompt nếu có, nhà cung cấp/mô hình, token đầu vào/đầu ra, token bộ nhớ đệm khi có, loại hành động, chi phí USD, thời gian phản hồi, trạng thái thành công và thời điểm.
 - **Lý do:** Chỉ có hạn mức hành động hiển thị là chưa đủ để đánh giá hiệu quả kinh tế bền vững.
-- **Hệ quả:** Ghi cả lần thất bại/thử lại và phân biệt ước tính với thực tế. Hỗ trợ báo cáo chi phí theo thời gian, người dùng, gói và quy trình, các người dùng/quy trình tốn kém và tỷ lệ Chi phí AI / Doanh thu bên cạnh hạn mức hiển thị.
+- **Hệ quả:** Ghi cả thất bại/thử lại, optimize/repair/generate và phân biệt ước tính với thực tế. Báo cáo theo thời gian, người dùng, gói, prompt/domain/task và tỷ lệ Chi phí AI / Doanh thu; hạn mức Optimize/Generate không thay sổ chi phí. Prototype chưa gọi AI hoặc hạch toán thật.
 
 ## ADR-006 — Tài liệu trong kho GitHub là bộ nhớ/nguồn thông tin chuẩn của dự án
 
@@ -60,9 +62,38 @@ ADR là bản ghi quyết định kiến trúc. Trạng thái `Accepted` có ngh
 - **Lý do:** Hạ tầng không cần thiết làm tăng công vận hành trước khi sản phẩm được kiểm chứng.
 - **Hệ quả:** Bắt đầu bằng Next.js và Supabase/PostgreSQL. Hạ tầng mới phải có nhu cầu cụ thể và lý do được ghi lại; không xây trước hệ thống lưu trữ hoặc điều phối cho tương lai.
 
-## ADR-009 — MVP ưu tiên trải nghiệm công việc/quy trình hơn kỹ thuật viết prompt
+## ADR-009 — Prompt Optimization là core giai đoạn 1; Workflow Automation không phải core
 
 - **Trạng thái:** Accepted — Đã chấp nhận
-- **Quyết định:** Tổ chức sản phẩm quanh công việc của người dùng Việt Nam: yêu cầu, điểm, tối ưu, nội dung hoàn chỉnh, chỉnh sửa nhanh, lưu và tái sử dụng.
-- **Lý do:** Sản phẩm phải giúp hoàn thành công việc thực tế, vượt ra ngoài việc cải thiện prompt.
-- **Hệ quả:** Đặt tên mẫu theo công việc, ưu tiên kết quả và bối cảnh thương hiệu tái sử dụng, hiển thị đơn vị Tối ưu/Tạo nội dung thay vì token hoặc lựa chọn mô hình.
+- **Cập nhật:** 2026-10-07; thay định hướng lấy quy trình tạo nội dung hoàn chỉnh làm trung tâm.
+- **Quyết định:** Core là Prompt Optimizer: prompt → domain/task → diagnosis/score → optimize → before/after → copy → repair → version → save. Workflow Studio/Workflow Automation không phải core giai đoạn 1.
+- **Lý do:** Giá trị chính là prompt rõ hơn và có thể dùng ở AI người dùng quen thuộc, bao phủ nhiều công việc.
+- **Hệ quả:** Prompt của tôi thay workflow; Copy là primary CTA; runner, Brand Context, billing/settings là hỗ trợ. Không xây automation engine. Giữ tên mẫu theo mục đích thực tế.
+
+## ADR-010 — Prompt Repair Loop là điểm khác biệt cốt lõi
+
+- **Trạng thái:** Accepted — Đã chấp nhận, 2026-10-07
+- **Quyết định:** Nhận output từ AI bên ngoài hoặc runner + vấn đề + feedback; chẩn đoán và sửa prompt thành phiên bản mới, giữ phiên bản nguồn.
+- **Lý do:** Output chưa đạt cần phản hồi cụ thể để cải thiện prompt, không chỉ sửa câu trả lời một lần.
+- **Hệ quả:** V1 gốc, V2 tối ưu, V3 repaired; repair lặp lại tạo version tiếp theo. Không tự chạy sau repair. Hiện chỉ mock, không khẳng định AI chẩn đoán nguyên nhân thật.
+
+## ADR-011 — Run Prompt là tiện ích trả phí tùy chọn
+
+- **Trạng thái:** Accepted — Đã chấp nhận, 2026-10-07
+- **Quyết định:** Optimize xong ưu tiên Copy; Run là secondary CTA chủ động, về sau dùng Generate credit. Không buộc Run để repair hoặc lưu.
+- **Lý do:** Người dùng đã có công cụ AI riêng; tiện ích nội bộ không nên cản luồng mặc định.
+- **Hệ quả:** Tách Optimize/Generate; hỗ trợ paste output ngoài. Quyền lợi dùng thử miễn phí, tính lượt Repair, retry/refund/reset chưa chốt. Prototype không trừ credit; image/video không được sinh media.
+
+## ADR-012 — Prompt Optimizer đa lĩnh vực
+
+- **Trạng thái:** Accepted — Đã chấp nhận, 2026-10-07
+- **Quyết định:** Dùng taxonomy type/domain/task hỗ trợ tối thiểu 12 lĩnh vực trong PRODUCT.md, không chỉ marketing.
+- **Lý do:** Prompt cần ngữ cảnh chuyên ngành ở coding, giáo dục, kinh doanh và các công việc khác.
+- **Hệ quả:** Catalog dùng chung cho selector/form/templates; hỗ trợ 5 loại prompt và diagnosis chuyên ngành. Brand Context tùy chọn chỉ khi phù hợp. Không mở rộng tính năng sinh media/web research theo tên task.
+
+## ADR-013 — Form động và mở dần tùy chọn
+
+- **Trạng thái:** Accepted — Đã chấp nhận, 2026-10-07
+- **Quyết định:** Form thích ứng type/domain/task; chỉ hiển thị prompt và selector ở bước đầu, mở thêm fields chuyên ngành/advanced khi cần.
+- **Lý do:** Một form marketing dài không phục vụ đúng Coding/Education và làm tăng tải nhập liệu trên điện thoại.
+- **Hệ quả:** Debug, giáo án, Shopee, affiliate review có fields tương ứng; language/framework ở selector phụ. Các task khác tái sử dụng form domain trong mock. Before/after hai cột desktop, xếp chồng mobile; không đổi theme lớn.

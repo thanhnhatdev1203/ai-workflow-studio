@@ -1,0 +1,2 @@
+import { PromptLibrary } from "@/components/prompt-library";
+export default function FavoritesPage() { return <PromptLibrary mode="favorites" />; }

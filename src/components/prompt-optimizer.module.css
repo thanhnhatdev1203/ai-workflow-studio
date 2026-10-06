@@ -1,0 +1,185 @@
+.workspace { width: min(1240px, 100%); color: #203b2b; }
+.workspace :where(h2, h3, p) { margin: 0; }
+.workspace :where(section, details)[id] { scroll-margin-top: 90px; }
+.workspace :where(input, textarea, select) { font-size: 13px; }
+.workspace :where(button):disabled { cursor: not-allowed; opacity: .45; transform: none; }
+.intro { display: flex; align-items: center; gap: 15px; background: #eaf2e5; border: 1px solid #dae5d4; border-radius: 16px; margin-bottom: 22px; padding: 19px 22px; }
+.introIcon { display: grid; width: 42px; height: 42px; flex: none; place-items: center; color: white; background: #286044; border-radius: 13px; }
+.intro strong { font-size: 14px; font-weight: 650; }
+.intro p { margin-top: 6px; font-size: 12px; line-height: 1.75; color: #5c7055; }
+.intro a { display: flex; align-items: center; gap: 8px; font-size: 11px; margin-left: auto; flex: none; color: #3e6b44; }
+.intro a svg { width: 14px; }
+.inputLayout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, .8fr); gap: 20px; align-items: start; }
+.inputCard { padding: 26px; }
+.panelTitle { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 23px; }
+.panelTitle h2 { font-size: 17px; letter-spacing: -.03em; font-weight: 600; }
+.exampleButton { display: flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 10px; background: #f2f6ee; border: 1px solid #dce6d4; border-radius: 9px; color: #5b7850; font-size: 11px; cursor: pointer; flex: none; }
+.exampleButton svg { width: 14px; height: 14px; }
+.mainPrompt { min-height: 163px; font-size: 14px !important; line-height: 1.8; }
+.inputHint { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px; font-size: 9px; color: #6b7b60; }
+.selectorGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 15px; }
+.taskField { grid-column: 1 / -1; }
+.selectorGrid select { text-overflow: ellipsis; padding-right: 24px; }
+.typeNote { display: flex; align-items: center; gap: 7px; font-size: 11px; line-height: 1.7; padding: 12px; margin-bottom: 15px !important; border-radius: 9px; background: #fbf5e6; color: #80652c; }
+.typeNote svg { width: 14px; height: 14px; }
+.options { margin-top: 10px; border: 1px solid #e1e8dc; border-radius: 11px; }
+.options summary, .diagnosisDetails summary, .currentPrompt summary { display: flex; align-items: center; justify-content: space-between; list-style: none; gap: 12px; padding: 15px; font-size: 12px; color: #506b45; cursor: pointer; min-height: 48px; }
+.options summary::-webkit-details-marker, .diagnosisDetails summary::-webkit-details-marker, .currentPrompt summary::-webkit-details-marker { display: none; }
+.options summary > span { display: inline-flex; align-items: center; gap: 7px; }
+.options summary > span:last-child { font-size: 10px; color: #596e4e; }
+.options summary svg, .diagnosisDetails summary svg, .currentPrompt summary svg { width: 14px; height: 14px; flex: none; }
+.options[open] summary { border-bottom: 1px solid #e4eadf; }
+.options[open] summary > svg:last-child, .options[open] summary > span:last-child svg, .diagnosisDetails[open] summary > svg, .currentPrompt[open] summary > svg { transform: rotate(180deg); }
+.dynamicGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 13px; padding: 19px 15px 5px; }
+.fullField { grid-column: 1 / -1; }
+.dynamicGrid :global(.field) label { font-size: 11px; color: #4d6244; }
+.dynamicGrid textarea { min-height: 87px; }
+.checkOption, .brandOption { display: flex; align-items: center; gap: 8px; font-size: 11px; line-height: 1.6; color: #5d7450; }
+.checkOption { margin-bottom: 15px; }
+.checkOption input, .brandOption input { width: 15px; height: 15px; accent-color: #216840; flex: none; }
+.brandOption { padding: 17px 0; }
+.brandOption a { margin-left: auto; display: grid; width: 30px; height: 30px; place-items: center; }
+.brandOption a svg { width: 14px; }
+.optimizeFooter { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; margin-top: 19px; }
+.optimizeFooter > span { font-size: 9px; color: #596e4e; }
+.diagnosisAside { display: grid; gap: 15px; }
+.diagnosisCard { padding: 23px; }
+.eyebrow { display: block; font-size: 9px; font-weight: 700; letter-spacing: .12em; color: #587b4e; line-height: 1.7; }
+.diagnosisCard h2 { margin: 8px 0 18px; font-size: 16px; font-weight: 600; letter-spacing: -.03em; }
+.scoreSummary { display: flex; align-items: center; gap: 13px; }
+.scoreSummary > span { display: flex; flex: none; flex-direction: column; justify-content: center; align-items: center; width: 71px; height: 71px; border-radius: 50%; border: 4px solid #c4dcb4; border-left-color: #e4ecd9; font-size: 25px; color: #4f793e; font-weight: 650; }
+.scoreSummary small { font-size: 8px; font-weight: 400; }
+.scoreSummary strong { font-size: 11px; font-weight: 600; }
+.scoreSummary p { font-size: 10px; line-height: 1.7; color: #697c5e; margin-top: 5px; }
+.scoreBreakdown { display: grid; gap: 10px; padding: 17px 0 7px; }
+.scoreBreakdown > div { display: flex; justify-content: space-between; gap: 10px; font-size: 10px; color: #64775a; }
+.diagnosisDetails { margin-top: 16px; border-top: 1px solid #e4eadf; }
+.diagnosisDetails summary { padding: 14px 0 3px; font-size: 11px; }
+.diagnosisDetails ul { list-style: none; padding: 12px 0 0; margin: 0; display: grid; gap: 13px; }
+.diagnosisDetails li { display: flex; align-items: start; gap: 7px; }
+.diagnosisDetails li > svg { margin-top: 2px; width: 13px; height: 13px; color: #79a25d; }
+.diagnosisDetails li strong { display: block; font-size: 10px; font-weight: 550; }
+.diagnosisDetails li span { display: block; margin-top: 3px; font-size: 9px; color: #596e4e; line-height: 1.6; }
+.diagnosisNote { font-size: 9px; color: #596e4e; line-height: 1.75; margin-top: 19px !important; }
+.repairTeaser { padding: 21px; border: 1px solid #e4e5d2; border-radius: 15px; background: #f7f5e9; }
+.repairTeaser > svg { width: 24px; height: 24px; color: #7b8955; margin-bottom: 12px; }
+.repairTeaser > strong { display: block; font-size: 13px; }
+.repairTeaser p { margin-top: 8px; font-size: 11px; color: #646949; line-height: 1.8; }
+.results { margin-top: 25px; padding: 28px; scroll-margin-top: 85px; }
+.resultHeading { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 21px; }
+.resultHeading h2 { font-size: 20px; letter-spacing: -.04em; font-weight: 600; line-height: 1.4; margin-top: 5px; }
+.resultHeading p { font-size: 11px; line-height: 1.8; color: #62745a; margin-top: 7px; }
+.resultHeading :global(.pill) { flex: none; font-size: 10px; }
+.versionList { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+.versionList button { display: inline-flex; align-items: center; gap: 7px; padding: 10px 12px; min-height: 43px; background: #f7f9f3; border: 1px solid #e0e7d9; border-radius: 10px; font-size: 11px; color: #68775a; cursor: pointer; }
+.versionList button[aria-pressed="true"] { background: #e9f3df; border-color: #c4d9b3; color: #416832; }
+.versionList button > span { font-weight: 650; }
+.versionList small { font-size: 8px; color: #596e4e; }
+.comparison { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 15px; }
+.comparison article { padding: 20px; border: 1px solid #e0e7d9; border-radius: 13px; background: #fafbf7; min-width: 0; }
+.comparison article.after { background: #f0f6e9; border-color: #d7e5ca; }
+.comparison article > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 15px; }
+.comparison h3 { font-size: 12px; font-weight: 600; }
+.comparison article > div > span { font-size: 10px; color: #4e7339; }
+.comparison pre, .runOutput pre, .currentPrompt pre { margin: 0; font-family: inherit; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.8; color: #53664a; max-height: 430px; overflow-y: auto; }
+.comparison pre { padding-right: 8px; scrollbar-width: thin; }
+.highlights { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.highlights span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 8px; border: 1px solid #e0e8d8; background: #f7faf1; border-radius: 6px; font-size: 9px; color: #596e4e; }
+.highlights svg { width: 12px; height: 12px; }
+.resultActions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 23px; }
+.repairButton { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 0 14px; font-size: 12px; color: #496b3e; border: 1px solid #d8e3cd; border-radius: 9px; background: #f5f8ee; cursor: pointer; }
+.repairButton svg { width: 15px; }
+.runnerNote { font-size: 10px; line-height: 1.8; color: #596e4e; margin-top: 13px !important; }
+.runOutput { padding: 21px; background: #fafbf7; border: 1px solid #e2e8da; border-radius: 13px; margin-top: 22px; }
+.runOutput > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+.runOutput strong { font-size: 12px; }
+.runOutput > div > span { font-size: 9px; color: #6e7d62; }
+.runOutput :global(.button) { margin-top: 17px; font-size: 11px; }
+.saveBar { display: flex; align-items: end; gap: 12px; padding-top: 23px; margin-top: 23px; border-top: 1px solid #e4eadc; }
+.saveBar :global(.field) { flex: 1; margin-bottom: 0; max-width: 340px; }
+.saveBar :global(.icon-button) { width: 43px; height: 44px; }
+.saveBar :global(.icon-button)[aria-pressed="true"] { color: #aa6654; background: #fcf0e9; }
+.saveBar :global(.button) { flex: none; }
+.savedLink { display: flex; align-items: center; gap: 6px; min-height: 44px; font-size: 11px; color: #587c45; }
+.savedLink svg { width: 14px; }
+.repairPanel { padding: 28px; margin-top: 25px; border-color: #cedfc1; background: #fefefb; scroll-margin-top: 85px; }
+.currentPrompt { margin-bottom: 19px; border: 1px solid #e0e7d7; border-radius: 11px; background: #f7faf2; }
+.currentPrompt pre { padding: 0 17px 19px; max-height: 210px; }
+.outputSource { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.outputSource button { padding: 11px 14px; min-height: 43px; border: 1px solid #dce5d1; border-radius: 9px; color: #657c54; background: white; font-size: 11px; cursor: pointer; }
+.outputSource button[aria-pressed="true"] { background: #eaf3df; border-color: #bfd3a7; color: #496c38; }
+.repairPanel textarea { min-height: 125px; }
+.problemPicker { margin: 25px 0 23px; padding: 0; border: 0; }
+.problemPicker legend { font-size: 12px; font-weight: 600; margin-bottom: 13px; }
+.problemPicker > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.problemPicker button { display: inline-flex; align-items: center; gap: 6px; min-height: 39px; padding: 0 11px; border: 1px solid #dce5d1; border-radius: 8px; background: white; color: #667b55; font-size: 11px; cursor: pointer; }
+.problemPicker button[aria-pressed="true"] { background: #eaf4df; border-color: #bed3a6; color: #3e6530; }
+.problemPicker button svg { width: 13px; height: 13px; }
+.failureDiagnosis { padding: 22px; border-radius: 12px; background: #edf5e6; border: 1px solid #d3e3c5; }
+.failureDiagnosis > strong { font-size: 14px; }
+.failureDiagnosis > p, .failureDiagnosis li { margin-top: 9px; font-size: 12px; line-height: 1.8; color: #5e7650; }
+.failureDiagnosis ul { padding-left: 19px; }
+.failureDiagnosis :global(.button) { margin-top: 14px; }
+.notice, .dirtyNotice { padding: 13px 16px; margin-top: 19px !important; border-radius: 10px; border: 1px solid #d8e4cc; background: #ecf4e6; font-size: 11px; line-height: 1.8; color: #4b713b; }
+.dirtyNotice { background: #faf3e2; color: #7d6532; border-color: #e9ddbd; }
+.prototypeNote { margin-top: 18px !important; color: #596e4e; font-size: 10px; line-height: 1.8; }
+@media (max-width: 1180px) {
+  .inputLayout { grid-template-columns: minmax(0, 1.5fr) minmax(240px, .8fr); gap: 15px; }
+  .inputCard { padding: 21px; }
+  .diagnosisCard { padding: 20px; }
+  .intro a { display: none; }
+  .saveBar { flex-wrap: wrap; }
+  .saveBar :global(.field) { flex-basis: 50%; }
+}
+@media (max-width: 900px) {
+  .inputLayout { grid-template-columns: 1fr; }
+  .diagnosisAside { grid-template-columns: 1fr 1fr; align-items: start; }
+  .results, .repairPanel { padding: 24px; }
+  .comparison pre { font-size: 12px; }
+}
+@media (max-width: 600px) {
+  .intro { padding: 17px; gap: 12px; align-items: start; }
+  .intro strong { font-size: 13px; line-height: 1.6; }
+  .intro p { font-size: 11px; }
+  .introIcon { width: 34px; height: 34px; border-radius: 10px; }
+  .inputCard { padding: 19px; }
+  .panelTitle { flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .panelTitle h2 { font-size: 16px; }
+  .selectorGrid, .dynamicGrid { grid-template-columns: 1fr; }
+  .taskField, .fullField { grid-column: auto; }
+  .mainPrompt { font-size: 16px !important; }
+  .workspace :where(input, textarea, select) { font-size: 16px; }
+  .options summary { font-size: 11px; padding-inline: 12px; gap: 7px; }
+  .options summary > span:first-child { min-width: 0; }
+  .options summary > span:last-child { flex: none; font-size: 9px; }
+  .options summary > span > svg { flex: none; }
+  .optimizeFooter { align-items: start; flex-direction: column; }
+  .optimizeFooter :global(.button) { width: 100%; font-size: 12px; }
+  .diagnosisAside { grid-template-columns: 1fr; }
+  .diagnosisCard { padding: 21px; }
+  .repairTeaser { padding: 19px; }
+  .results, .repairPanel { padding: 19px; scroll-margin-top: 80px; }
+  .resultHeading { align-items: start; flex-wrap: wrap; gap: 12px; }
+  .resultHeading h2 { font-size: 19px; }
+  .resultHeading :global(.pill) { font-size: 9px; }
+  .versionList button { font-size: 10px; padding: 10px; }
+  .comparison { grid-template-columns: 1fr; }
+  .comparison article { padding: 17px; }
+  .comparison pre { max-height: 340px; }
+  .highlights { gap: 6px; }
+  .highlights span { font-size: 8px; padding: 6px; }
+  .resultActions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .resultActions :global(.button) { font-size: 11px; padding: 0 10px; }
+  .repairButton { grid-column: 1 / -1; font-size: 11px; }
+  .runOutput { padding: 17px; }
+  .runOutput > div { align-items: start; flex-direction: column; gap: 6px; }
+  .runOutput :global(.button) { width: 100%; font-size: 10px; }
+  .saveBar { gap: 9px; }
+  .saveBar :global(.field) { min-width: 100%; max-width: 100%; }
+  .saveBar :global(.button) { font-size: 11px; }
+  .savedLink { font-size: 10px; }
+  .outputSource button { flex: 1; font-size: 10px; padding: 10px; }
+  .problemPicker button { font-size: 10px; min-height: 42px; padding: 0 10px; }
+  .failureDiagnosis { padding: 17px; }
+  .failureDiagnosis :global(.button) { width: 100%; font-size: 11px; }
+}

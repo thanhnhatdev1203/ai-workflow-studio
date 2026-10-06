@@ -1,119 +1,111 @@
 # AI Workflow Studio — đặc tả sản phẩm
 
-Tài liệu này mô tả hành vi dự kiến của sản phẩm, không phải trạng thái triển khai. Xem [CURRENT_STATE.md](CURRENT_STATE.md) để biết tiến độ đã xác minh và [DECISIONS.md](DECISIONS.md) để biết các nguyên tắc đã chấp nhận.
+Cập nhật định hướng ngày **2026-10-07**. Tên giao diện hiện tại là **StudioFlow**. Đây là đặc tả mục tiêu; tình trạng triển khai thực tế nằm trong [CURRENT_STATE.md](CURRENT_STATE.md).
 
-## Tầm nhìn và vấn đề cần giải quyết
+## Giá trị cốt lõi
 
-Giúp người dùng Việt Nam biến một công việc hằng ngày thành nội dung hoàn chỉnh hữu ích và tái sử dụng quy trình đó. Người sáng tạo nội dung và người bán hàng thường bắt đầu bằng yêu cầu thiếu thông tin, phải nhập lại bối cảnh thương hiệu và mất thời gian sửa các kết quả chung chung. Tối ưu prompt là một bước để hoàn thành công việc, không phải toàn bộ sản phẩm.
+**Prompt Optimizer** giúp người dùng diễn đạt yêu cầu rõ hơn, sao chép prompt sang AI họ đang dùng và tiếp tục cải thiện khi kết quả chưa đạt. **Prompt Repair Loop** là điểm khác biệt: người dùng đưa output cùng phản hồi trở lại để sửa nguyên nhân ở prompt, thay vì phải viết lại từ đầu.
 
-Khách hàng ban đầu là người sáng tạo nội dung, người bán hàng trực tuyến và người làm việc tự do. Nhóm marketing nhỏ là đối tượng ở giai đoạn sau. Trải nghiệm ban đầu ưu tiên tiếng Việt, các kênh bán hàng phổ biến trong nước, đơn vị sử dụng dễ hiểu và phương thức thanh toán tại Việt Nam.
+Sản phẩm hỗ trợ người làm marketing, bán hàng, affiliate, lập trình, giáo dục, hỗ trợ khách hàng và công việc văn phòng. Không lấy Workflow Studio hoặc Workflow Automation làm core giai đoạn 1. Không buộc người dùng chạy prompt trong hệ thống để nhận giá trị.
 
-## Quy trình chính và điểm khác biệt
+## Luồng chính
 
-Chọn công việc → Nhập yêu cầu → Chấm điểm prompt → Tối ưu prompt → Tạo nội dung hoàn chỉnh → Chỉnh sửa nhanh → Lưu quy trình → Tái sử dụng.
+Nhập prompt → Chọn loại/lĩnh vực/mục đích → Diagnosis → Score → Optimize → Before/After → **Copy Prompt** → Run Prompt tùy chọn → Output chưa đạt + phản hồi → Diagnose Failure → Repair → Phiên bản mới → Copy/Run lại → Save.
 
-Các mẫu quy trình mô tả công việc người dùng muốn hoàn thành, thay vì định dạng prompt mang tính kỹ thuật. Prompt Score hướng dẫn cách cải thiện yêu cầu; so sánh trước/sau giúp hiểu phần tối ưu; kết quả nội dung, chỉnh sửa nhanh, quy trình tái sử dụng và hồ sơ thương hiệu tạo giá trị cho những lần dùng tiếp theo.
+- Sau tối ưu, **Sao chép prompt** là hành động chính; **Chạy thử** là hành động phụ. Không tự chạy sau Optimize hoặc Repair.
+- Người dùng có thể dán output từ AI bên ngoài; repair không phụ thuộc runner nội bộ.
+- Lưu prompt gồm yêu cầu, ngữ cảnh, tùy chỉnh, điểm minh họa, phiên bản và yêu thích. Phiên bản cũ được giữ để so sánh và tái sử dụng.
+- Prototype hiện chỉ xử lý dữ liệu trong trình duyệt; không có AI thật hay dịch vụ backend.
 
-Sản phẩm ưu tiên công việc cần làm. Người dùng cuối tuyệt đối không chọn mô hình AI. Giao diện không được đưa ra các lựa chọn GPT, Claude, Gemini hoặc tên mô hình OpenRouter. Backend tự định tuyến để cân bằng chất lượng và chi phí.
+## Core và tính năng hỗ trợ
 
-## Mục tiêu và phạm vi giai đoạn 1
-
-Kiểm chứng xem người dùng có hiểu sản phẩm, tái sử dụng quy trình và trả tiền cho kết quả được tạo hay không. MVP (phiên bản tối thiểu để kiểm chứng sản phẩm) chỉ xử lý văn bản.
-
-| Tính năng | Trải nghiệm dự kiến |
+| Nhóm | Phạm vi |
 | --- | --- |
-| Trang giới thiệu | Giải thích quy trình từ công việc đến kết quả, đưa ví dụ tiếng Việt và mời đăng ký. |
-| Xác thực email và đăng nhập Google | Cho người dùng truy cập lịch sử, bối cảnh đã lưu và quyền lợi của chính họ. |
-| Trang tổng quan | Cung cấp điểm bắt đầu công việc, hoạt động gần đây, quy trình đã lưu và tóm tắt hạn mức dễ hiểu. |
-| Mẫu quy trình | Thu thập yêu cầu có cấu trúc cho các công việc quen thuộc của người sáng tạo, người bán hàng và người làm việc tự do. |
-| Chấm điểm prompt — Prompt Score | Phản hồi về mức độ đầy đủ bằng quy tắc xác định, không cần gọi AI. |
-| So sánh prompt trước/sau | Hiển thị yêu cầu ban đầu bên cạnh prompt đã tối ưu. |
-| Tối ưu prompt bằng AI | Chuyển yêu cầu và bối cảnh thương hiệu phù hợp thành prompt tốt hơn. |
-| Tạo nội dung hoàn chỉnh bằng AI | Tạo kết quả thực tế của công việc từ prompt đã tối ưu. |
-| Chỉnh sửa nhanh — Quick Edit | Cho phép tinh chỉnh kết quả bằng các thao tác đơn giản. |
-| Lịch sử | Xem lại các lượt chạy và kết quả trước đây. |
-| Mục yêu thích | Đánh dấu nội dung hữu ích để tìm lại; loại đối tượng được đánh dấu chưa được chốt. |
-| Quy trình đã lưu | Lưu yêu cầu và bối cảnh có thể tái sử dụng cho những lần chạy sau. |
-| Hồ sơ thương hiệu — Brand Profile | Tái sử dụng thông tin nhận diện thương hiệu và phong cách viết giữa các quy trình. |
-| Hạn mức sử dụng hằng tháng | Hiển thị và kiểm soát quyền lợi theo gói bằng đơn vị dễ hiểu. |
-| Theo dõi sử dụng và chi phí AI | Ghi lại mọi lần gọi AI, phục vụ phân tích chi phí nội bộ. |
-| Gói thuê bao và thanh toán SePay | Bán quyền lợi đã xác minh qua chuyển khoản ngân hàng/mã QR tại Việt Nam. |
-| Trang quản trị tối thiểu | Theo dõi người dùng, thuê bao, doanh thu, mức sử dụng, thanh toán và chi phí AI. |
+| Core | Prompt Optimizer đa lĩnh vực; diagnosis; score; so sánh trước/sau; copy; Prompt Repair Loop; phiên bản; Prompt của tôi; lịch sử; mẫu; yêu thích |
+| Hỗ trợ | Brand Context tùy chọn; Run Prompt tùy chọn; thông tin gói; cài đặt |
+| Triển khai sau | Xác thực và đồng bộ dữ liệu; AI phía máy chủ; kiểm soát hạn mức/chi phí; thanh toán đã xác minh; báo cáo quản trị tối thiểu |
+| Ngoài core giai đoạn 1 | Workflow Automation, điều phối tác nhân phức tạp, API công khai, marketplace, tiện ích trình duyệt, app di động riêng |
 
-Không bắt buộc trong MVP: tạo ảnh, tải PDF, RAG, nghiên cứu web, chợ mua bán, API công khai, tiện ích trình duyệt, ứng dụng di động riêng, điều phối tác nhân phức tạp và giao diện chọn nhiều mô hình. Có thể xem xét các hạng mục này ở giai đoạn sau; lựa chọn mô hình vẫn bị cấm theo định hướng sản phẩm hiện tại.
+Bản chuyển hướng bàn giao ngày 2026-10-07 chỉ gồm UI/UX, mock data, tổng hợp research và tài liệu. Chưa triển khai Supabase, database/migration, AI API, tối ưu/repair thật, SePay, Resend hoặc xác thực thật; các phần backend tương ứng chỉ thực hiện khi có nhiệm vụ tiếp theo cho phép. Web search, PDF/RAG và tạo ảnh/video vẫn ngoài phạm vi core giai đoạn 1.
 
-## Các mẫu quy trình ban đầu
+## Loại prompt và phân loại lĩnh vực/mục đích
 
-- Bài đăng Facebook
-- Mô tả sản phẩm Shopee
-- Kịch bản TikTok/Reel
-- Quảng cáo Facebook
-- Email bán hàng
-- Trả lời hỗ trợ khách hàng
-- Chú thích sản phẩm
-- Gợi ý ý tưởng nội dung
+Ba lựa chọn độc lập là **loại prompt → lĩnh vực → mục đích cụ thể**. Loại prompt gồm text/tổng quát, coding, image, video và data/analysis. Image/video chỉ tối ưu **văn bản prompt**, không sinh ảnh/video. Data hiện chỉ giúp cấu trúc yêu cầu phân tích; không chạy phân tích dữ liệu thật. Người dùng không chọn mô hình AI backend.
 
-Mỗi mẫu cần hỏi thông tin cần thiết để hoàn thành công việc, chẳng hạn sản phẩm, đối tượng khách hàng, kết quả mong muốn, giọng điệu và các giới hạn.
+Danh mục trong `src/lib/prompt-catalog.ts` là nguồn dữ liệu chung cho selector, form và templates. Những tên như SEO keyword research, competitor analysis hoặc image/video mô tả mục đích của prompt; không có nghĩa ứng dụng tự tìm web hoặc tạo media.
 
-## Chấm điểm prompt — Prompt Score
+| Lĩnh vực | Số mục đích | Các mục đích |
+| --- | ---: | --- |
+| Marketing & Content (`marketing`) | 12 | Viết bài Facebook; Viết caption; Viết quảng cáo; Viết landing page; Email marketing; Kế hoạch content; Ý tưởng content; Viết hook; Viết CTA; Giới thiệu sản phẩm; Kịch bản video ngắn; Nội dung thương hiệu |
+| E-commerce (`ecommerce`) | 12 | Mô tả sản phẩm Shopee; TikTok Shop listing; Tiêu đề sản phẩm; Điểm nổi bật sản phẩm; SEO mô tả sản phẩm; So sánh sản phẩm; FAQ sản phẩm; Trả lời review; Trả lời khách hỏi sản phẩm; Upsell / Cross-sell; Nội dung flash sale; Kịch bản livestream |
+| Affiliate / MMO (`affiliate`) | 14 | Đánh giá sản phẩm; Bài so sánh; Bài danh sách lựa chọn; Affiliate blog; Dàn ý SEO; Kịch bản review mạng xã hội; Kịch bản TikTok Affiliate; Dàn ý YouTube review; Landing page; Email giới thiệu; Ưu / nhược điểm; Hướng dẫn mua hàng; CTA chuyển đổi; Góc tiếp cận nội dung |
+| Lập trình (`coding`) | 20 | Debug; Viết code; Giải thích code; Refactor; Code review; Tối ưu hiệu năng; Viết unit test; Viết SQL; Thiết kế API; Thiết kế database; System design; Tạo tài liệu kỹ thuật; Chuyển ngôn ngữ / framework; Security review; Tạo regex; Shell / CLI; IBM i / RPG; Java; JavaScript / TypeScript; Python |
+| Giáo dục (`education`) | 14 | Soạn giáo án; Giải thích khái niệm; Tạo bài tập; Tạo trắc nghiệm; Tạo đáp án; Soạn đề kiểm tra; Rubric chấm điểm; Nhận xét cho học sinh; Tóm tắt bài học; Dàn ý slide; Hoạt động lớp học; Phân hóa bài học; Giải bài từng bước; Giải thích theo độ tuổi |
+| Sales (`sales`) | 10 | Cold email; Follow-up; Kịch bản bán hàng; Câu hỏi khám phá nhu cầu; Xử lý phản đối; Đề xuất bán hàng; Giới thiệu giải pháp; Dàn ý cuộc gọi; LinkedIn outreach; CTA chốt bán hàng |
+| Chăm sóc khách hàng (`support`) | 9 | Trả lời khiếu nại; Trả lời khách hỏi giá; Chính sách đổi trả; Trả lời review xấu; Trả lời FAQ; Chat support; Email support; Phản hồi lịch sự; Xoa dịu tình huống |
+| SEO (`seo`) | 11 | Dàn ý SEO; Search intent; Prompt nghiên cứu từ khóa; Bài viết SEO; Meta title; Meta description; FAQ; Gợi ý liên kết nội bộ; Content cluster; Prompt phân tích đối thủ; Ý tưởng chủ đề |
+| Văn phòng / Business (`business`) | 12 | Viết email; Tóm tắt cuộc họp; Agenda cuộc họp; Báo cáo; Đề xuất công việc; Kế hoạch kinh doanh; Prompt SWOT; Phân tích quyết định; Brainstorming; Kế hoạch dự án; SOP; Checklist |
+| HR / Tuyển dụng (`hr`) | 8 | Mô tả công việc; Câu hỏi phỏng vấn; Đánh giá ứng viên; Bài tuyển dụng; Kế hoạch onboarding; Đánh giá hiệu suất; Thông báo nội bộ; Kế hoạch đào tạo |
+| Social Media (`social`) | 10 | Facebook post; Kịch bản TikTok; Kịch bản Reel; YouTube Shorts; Dàn ý YouTube video; Instagram caption; Threads post; Lịch nội dung mạng xã hội; Viral hook; Comment / Reply |
+| Khác (`other`) | 3 | Yêu cầu tổng quát; Phân tích thông tin; Viết lại văn bản |
 
-Tính tổng điểm từ 0–100 bằng quy tắc xác định trong TypeScript. Các tiêu chí có thể gồm: mục tiêu rõ ràng, bối cảnh, đối tượng hướng đến, yêu cầu cụ thể, định dạng đầu ra, giọng điệu, giới hạn và tiêu chí chất lượng. Hiển thị phần thông tin còn thiếu để người dùng bổ sung. Đây là tính năng hướng dẫn, không phải phép đo khoa học hay cam kết về chất lượng đầu ra.
+## Nhập liệu theo ngữ cảnh
 
-Ví dụ minh họa: `Viết bài Facebook bán áo nam` có thể đạt 42/100, rồi 91/100 sau tối ưu. Các con số này chỉ là ví dụ, không phải kết quả bắt buộc của thuật toán. Trọng số tiêu chí, quy tắc nhận diện tiếng Việt và cách chấm điểm cụ thể chưa được quyết định. Dùng cùng bộ tiêu chí trước và sau tối ưu; không gọi AI để tính điểm.
+Form chính chỉ gồm prompt, loại, lĩnh vực và mục đích. Thông tin chuyên ngành và tùy chỉnh nâng cao nằm trong phần mở rộng, không bắt người mới điền mọi ô.
 
-## Hồ sơ thương hiệu — Brand Profile
+| Ngữ cảnh | Thông tin động |
+| --- | --- |
+| Coding / Debug | Ngôn ngữ/framework, code hoặc lỗi, hành vi mong đợi, hành vi thực tế, ràng buộc kỹ thuật |
+| Education / Giáo án | Môn, cấp học, chủ đề, thời lượng, mục tiêu học tập, độ khó |
+| Ecommerce / Shopee | Sản phẩm, USP, khách hàng, định vị giá, tone, từ khóa, nền tảng |
+| Affiliate / Review | Sản phẩm, đối tượng, góc review, ưu/nhược điểm có bằng chứng, CTA, nền tảng, quan hệ affiliate/tính trung lập |
+| Image | Chủ thể, phong cách, bố cục/tỷ lệ, ánh sáng, chi tiết cần tránh |
+| Video | Cảnh, thời lượng, máy quay, chuyển động, chi tiết cần tránh |
+| Data | Dữ liệu, câu hỏi phân tích, chỉ số, giới hạn |
 
-Lưu bối cảnh tái sử dụng: tên thương hiệu, mô tả thương hiệu, sản phẩm/dịch vụ, khách hàng mục tiêu, giọng điệu, từ khóa quan trọng, từ bị cấm, phong cách lời kêu gọi hành động (CTA) và ví dụ. Tự động đưa bối cảnh phù hợp vào các quy trình sau. Đây là tính năng quan trọng để giữ chân người dùng: họ không cần nhập lại thông tin thương hiệu mỗi lần.
+Đổi task có thể đổi trường: Education ngoài giáo án không yêu cầu thời lượng; Coding ngoài Debug ẩn hành vi thực tế; so sánh Ecommerce dùng tiêu chí so sánh. Các task còn lại tái sử dụng form lĩnh vực ở prototype; chưa có form riêng cho mọi task.
 
-Khả năng sử dụng và số lượng hồ sơ phụ thuộc vào gói. Trước khi triển khai, cần chốt thứ tự ưu tiên khi yêu cầu của một lượt chạy và bối cảnh thương hiệu mâu thuẫn nhau; chính sách này hiện chưa được chốt.
+Tùy chỉnh chung: ngôn ngữ, tone, đối tượng/người nhận, độ dài, định dạng đầu ra, phong cách, mức chi tiết, ràng buộc, điều cần tránh, kèm ví dụ, CTA khi phù hợp và bối cảnh bổ sung. Thông tin thiếu được để dưới dạng chỗ cần bổ sung, không tự bịa.
 
-## Chỉnh sửa nhanh — Quick Edit
+## Diagnosis và Prompt Score
 
-Các thao tác có thể gồm: Viết lại, Ngắn hơn, Thuyết phục hơn, Chuyên nghiệp hơn, Thân thiện hơn, Thêm CTA và Đổi giọng điệu. Thông thường dùng định tuyến AI chi phí thấp. Mọi lần chỉnh sửa có gọi AI đều phải được ghi vào chi phí nội bộ. Cách trừ hạn mức Tối ưu/Tạo nội dung cho tính năng này chưa được chốt và phải quyết định trước khi triển khai.
+Tiêu chí chung: mục tiêu, bối cảnh, đối tượng, định dạng, tone, ràng buộc và tiêu chí thành công. Tiêu chí ngữ cảnh lấy từ trường chuyên ngành, gồm language/error/expected behavior ở Coding, cấp học/objective/difficulty ở Education, product/USP/buyer/platform ở Ecommerce và product/angle/disclosure/CTA ở Affiliate.
 
-## Đơn vị sử dụng và giả định về giá
+Điểm dùng thang **0–100**; định hướng thuật toán thật là quy tắc xác định TypeScript, không dùng AI. Prototype minh họa **42 → 91**, repaired **94**, chia phần chung /60 và ngữ cảnh /40. Đây là dữ liệu cố định để xem UI, không chứng minh chất lượng hay thuật toán đã chốt. Chẩn đoán vẫn chỉ ra ô thiếu dù điểm mẫu cao; tiêu chí và trọng số phải được kiểm chứng riêng.
 
-Người dùng thấy các đơn vị: Tối ưu (Optimize), Tạo nội dung (Generate), Quy trình đã lưu, Hồ sơ thương hiệu và Thành viên. Không hiển thị token. Ví dụ: `Tạo nội dung: 35 / 60` và `Tối ưu: 87 / 120`.
+## Prompt Repair Loop và phiên bản
 
-Tối ưu và Tạo nội dung là hạn mức dự kiến theo tháng. Số quy trình, hồ sơ thương hiệu và thành viên là giới hạn số lượng được lưu/có, không phải số thao tác theo tháng. Chính sách đặt lại hạn mức/chu kỳ thanh toán và xử lý thất bại/thử lại chưa được chốt.
+Người dùng chọn output ngoài hệ thống hoặc output runner của phiên bản hiện tại; chọn một hoặc nhiều vấn đề: quá dài, quá ngắn, chung chung, thiếu chi tiết, sai tone, sai format, hiểu sai, thiếu CTA, lặp ý, chưa đủ chuyên sâu, sai đối tượng hoặc vấn đề khác. Có thể bổ sung phản hồi tự do; vấn đề khác bắt buộc có mô tả.
 
-Toàn bộ mức giá và hạn mức dưới đây là **giả định sản phẩm hiện tại, cần được kiểm chứng**, không phải quyền lợi ra mắt đã cam kết.
+Chẩn đoán minh họa ánh xạ vấn đề sang chỉ dẫn sửa. Repair giữ prompt đang chọn, bổ sung chỉ dẫn, phản hồi và output tham chiếu, tạo phiên bản mới có liên kết phiên bản nguồn. Luồng đầu tiên là **V1 Gốc → V2 Tối ưu → V3 Repaired**. Repair tiếp tục thêm V4...; tối ưu lại đầu vào tạo cặp gốc/tối ưu mới. Không ghi đè phiên bản trước và không tự chạy phiên bản mới.
 
-| Gói | VND/tháng | Tối ưu/tháng | Tạo nội dung/tháng | Quy trình đã lưu | Hồ sơ thương hiệu | Thành viên |
+Run là tiện ích trả phí tùy chọn, về sau tiêu thụ **Generate credit**, tách hạn mức Optimize. Số credit dùng thử miễn phí, cách tính lượt Repair, chi phí thất bại/thử lại và chính sách hạn mức chưa chốt. Bản mock không trừ credit và output chạy thử là ví dụ soạn sẵn, không được tạo từ yêu cầu bằng AI.
+
+## Thư viện và Brand Context
+
+Templates hỗ trợ cả 12 lĩnh vực, tìm kiếm và lọc category; hiện có 27 mẫu gợi ý được viết riêng. Chọn mẫu điền dữ liệu vào optimizer nhưng không tự tối ưu/chạy.
+
+**Prompt của tôi** hiển thị tên, domain/task, phiên bản, điểm, lần cập nhật, favorite, copy, edit, repair và xem versions. Lịch sử hiện thể hiện phiên bản của các prompt đã lưu; không phải nhật ký mọi thao tác chưa lưu. Favorite liên kết cùng prompt trong thư viện.
+
+Brand Context gồm brand, product, audience, tone, keywords, avoided words, CTA và examples. Chỉ thêm khi người dùng chọn ở Marketing, Ecommerce, Affiliate, Sales hoặc Social. Coding/Education không buộc dùng thương hiệu. Prototype có một hồ sơ local, chưa có nhiều hồ sơ hay đồng bộ tài khoản.
+
+## Giá tham khảo và hạch toán dự kiến
+
+Các giá/định mức kế thừa dưới đây là **giả định chưa được kiểm chứng**, không phải chính sách đã chốt hay gói đang bán. FREE Generate credit minh họa khả năng dùng thử tiện ích trả phí; quyền lợi thật phải được quyết định và kiểm soát phía máy chủ.
+
+| Gói | VND/tháng | Optimize | Generate credit | Lưu prompt | Brand Context | Thành viên |
 | --- | ---: | ---: | ---: | --- | --- | --- |
-| FREE | 0 | 10 | 2 | 3 | Chưa quy định | Chưa quy định |
-| PRO | 149,000 | 120 | 60 | 30 | 1 | Chưa quy định |
-| CREATOR | 299,000 | 400 | 120 | 100 | 3 | Chưa quy định |
-| BUSINESS | 799,000 | 1,000 | 300 | Chưa quy định | 10 | 5 |
+| FREE | 0 | 10 | 2 | 3 | Chưa chốt | Chưa chốt |
+| PRO | 149.000 | 120 | 60 | 30 | 1 | Chưa chốt |
+| CREATOR | 299.000 | 400 | 120 | 100 | 3 | Chưa chốt |
+| BUSINESS | 799.000 | 1.000 | 300 | Chưa chốt | 10 | 5 — định hướng sau |
 
-Gói FREE có tính năng chấm điểm prompt. Đầu ra dài hơn/quy trình nâng cao của CREATOR và quy trình dùng chung/không gian làm việc của BUSINESS là khả năng ở giai đoạn sau. Giá và số thành viên BUSINESS là giả định kế hoạch; không vì vậy mà thêm ngay hạ tầng làm việc nhóm vào mô hình dữ liệu tối giản ban đầu.
+Chưa triển khai gói, mua thêm, tính lượt hoặc thanh toán. Mọi AI call sau này phải hạch toán người dùng, phiên bản/lượt chạy, provider/model, token, hành động, USD, độ trễ, thành công và thời gian, gồm cả thất bại/thử lại. Backend xác minh thanh toán, quyền sở hữu, hạn mức và tần suất; frontend không cấp quyền lợi. Chưa chốt mua thêm, chu kỳ reset, hoàn lượt, gia hạn, tỉ giá hoặc phân quyền nhóm.
 
-Gói mua thêm có thể có: 50 lượt Tạo nội dung bổ sung với giá 79,000 VND. Việc có ra mắt hay không, thời hạn sử dụng và thứ tự trừ lượt chưa được chốt. Không tự đặt giới hạn ở những chỗ yêu cầu chưa quy định.
+## Kiểm chứng sản phẩm
 
-Những thao tác tốn kém trong tương lai, như nghiên cứu chuyên sâu, tạo ảnh hoặc tạo tài liệu dài, cần cơ chế điểm sử dụng riêng nếu được đưa vào sản phẩm. Chúng nằm ngoài MVP chỉ xử lý văn bản bắt buộc hiện tại.
+Theo dõi người dùng hiểu hành động Copy, đưa prompt sang công cụ khác, quay lại sửa từ output, lưu/tái sử dụng prompt và sẵn sàng trả cho tối ưu/repair hoặc tiện ích Run. Đo conversion đăng ký, lần tối ưu đầu tiên, copy, repair hoàn tất, retention và chi phí/doanh thu khi có backend. Ngưỡng định lượng chưa chốt; không dùng điểm mock làm chứng cứ hiệu quả.
 
-## Cách tạo doanh thu và kiểm soát chi phí
+## Nguồn research và bàn giao
 
-Gói miễn phí cho người dùng trải nghiệm kết quả hữu ích. Các gói trả phí tăng số lượt sử dụng và khả năng lưu bối cảnh/quy trình. Gói mua thêm lượt Tạo nội dung có thể đáp ứng nhu cầu tăng thêm. Đây là các giả thuyết cần kiểm chứng qua hành vi sử dụng và thanh toán thực tế.
-
-Hạn mức hiển thị và hạch toán chi phí nội bộ là hai yêu cầu riêng. Ghi mọi lần gọi AI với người dùng, lượt chạy prompt nếu có, nhà cung cấp/mô hình, token đầu vào/đầu ra, token bộ nhớ đệm nếu có, loại hành động, chi phí USD ước tính hoặc thực tế, thời gian phản hồi, trạng thái thành công và thời điểm. Dùng mô hình rẻ cho tối ưu và biến đổi đơn giản, mô hình tiêu chuẩn cho tạo nội dung thông thường, mô hình mạnh hơn cho trường hợp phức tạp đặc biệt.
-
-Phân tích chi phí AI hôm nay/tháng này, theo người dùng/gói/quy trình, các người dùng/quy trình tốn kém nhất và tỷ lệ Chi phí AI / Doanh thu. Doanh thu dự kiến bằng VND còn chi phí nhà cung cấp bằng USD; tỷ lệ phải dùng quy đổi tiền tệ thống nhất và cùng kỳ báo cáo. Chưa có mục tiêu biên lợi nhuận hoặc chính sách tỷ giá.
-
-## Phạm vi quản trị
-
-Báo cáo tối thiểu cần có tổng người dùng, người dùng trả phí, phân bố gói, doanh thu tháng, chi phí AI, tỷ lệ Chi phí AI / Doanh thu, chi phí AI theo người dùng/quy trình, thanh toán và mức sử dụng. Giai đoạn 1 ưu tiên đúng chức năng hơn giao diện đẹp.
-
-## Chỉ số kiểm chứng sản phẩm
-
-Dưới đây là các định nghĩa đo lường đề xuất. Chưa có ngưỡng thành công bằng số hoặc mục tiêu lượng truy cập/doanh thu được kiểm chứng.
-
-| Chỉ số | Cách đo đề xuất | Điều cần kiểm chứng |
-| --- | --- | --- |
-| Trang giới thiệu → đăng ký | Số đăng ký mới chia cho số khách truy cập trang giới thiệu trong một khoảng thời gian xác định | Mức độ hiểu và quan tâm ban đầu |
-| Đăng ký → tối ưu lần đầu | Nhóm người đăng ký hoàn thành lần tối ưu thành công đầu tiên | Khả năng bắt đầu sử dụng sản phẩm |
-| Tối ưu → tạo nội dung | Người đã tối ưu thành công tiếp tục tạo nội dung thành công | Giá trị của việc hoàn thành công việc |
-| Tái sử dụng ngày 7 (D7) | Nhóm người đã bắt đầu dùng sản phẩm quay lại sử dụng quy trình vào ngày thứ 7 | Tính hữu ích khi sử dụng lặp lại |
-| Đã bắt đầu dùng → trả phí | Nhóm người đã bắt đầu dùng có thanh toán đầu tiên được xác minh | Mức sẵn sàng trả tiền cho kết quả |
-
-Chốt khoảng thời gian theo dõi nhóm người dùng và định nghĩa bắt đầu sử dụng trước khi thu thập số liệu. Xem việc tái sử dụng quy trình đã lưu, mức dùng hạn mức và chi phí cùng với tỷ lệ chuyển đổi; không dùng riêng số đăng ký để kết luận sản phẩm đã được kiểm chứng.
+[PROMPTIFY_RESEARCH.md](research/PROMPTIFY_RESEARCH.md) lưu quan sát giao diện, flow sau login, giá/quota hiển thị và bảng liên hệ sang logic sản phẩm mình. Đây không phải bằng chứng về thuật toán, provider, cách trừ quota hoặc API Promptify. Không thay các giá giả định của StudioFlow bằng giá đối thủ. Các điểm cần chốt trước logic thật nằm trong CURRENT_STATE/ARCHITECTURE; cách tiếp nhận trên máy khác nằm trong [README.md](../README.md).
